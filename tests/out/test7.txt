@@ -1,4 +1,6 @@
-nnnnn   m     mmm mmg s
-s       sssss sss      
-s432423 444   4        
-4322v   2              
+aaaaaa bbbbbb cccccc dddd
+a      b      c      d   
+a      b      c          
+a      b                 
+a                        
+                          
