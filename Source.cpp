@@ -1,154 +1,196 @@
 #include <iostream> 
+
 #include <fstream> 
 
-bool isdelimiter(int ch) {
+ 
 
-	return ch == ' '|| ch == '\n';
+ 
+
+ 
+
+int main(int argc, char* argv[]) { 
+
+ 
+
+ if (argc != 3) { 
+
+  std::cout << "Use: \n" 
+
+   << "text2table source destination \n"; 
+
+  return 1; 
+
+ } 
+
+ 
+
+ std::ifstream inFile(argv[1]); 
+
+ if (!inFile) { 
+
+  std::cerr << "Can not open file '" << argv[1] << "'\n"; 
+
+  return 2; 
+
+ } 
+
+ 
+
+ //1.        
+
+ int lenwords[200] = { 0 }; 
+
+ int wordlen = 0; 
+
+ int wordnum = 0; 
+
+ int ch; 
+
+ while (EOF != (ch = inFile.get())) { 
+
+  if (' ' == ch || '\t' == ch) { //   
+
+   if (wordlen != 0) { 
+
+    if (lenwords[wordnum] < wordlen) { 
+
+     lenwords[wordnum] = wordlen; 
+
+    } 
+
+    wordlen = 0; 
+
+    ++wordnum; 
+
+   } 
+
+  } 
+
+  else if (ch == '\n') { //     
+
+   if (lenwords[wordnum] < wordlen) { 
+
+    lenwords[wordnum] = wordlen; 
+
+   } 
+
+   wordlen = 0; 
+
+   wordnum = 0; 
+
+  } 
+
+  else { 
+
+   ++wordlen; 
+
+  } 
+
+ } 
+
+ if (wordlen != 0) { 
+
+  if (lenwords[wordnum] < wordlen) { 
+
+   lenwords[wordnum] = wordlen; 
+
+  } 
+
+ } 
+
+ 
+
+ //2.         ,          
+
+ 
+
+ inFile.clear(); //   (   ) 
+
+ inFile.seekg(0);//seekg -  0-  
+
+ 
+
+ std::ofstream outFile(argv[2]); 
+
+ if (!outFile.is_open()) { 
+
+  std::cout << "Can not write to file '" << argv[2] << "\n"; 
+
+  inFile.close(); 
+
+  return 3; 
+
+ } 
+
+ 
+
+ wordlen = 0; 
+
+ wordnum = 0; 
+
+ int charcounter = 0; 
+
+ while (EOF != (ch = inFile.get())) { 
+
+  if (' ' == ch || '\t' == ch) {  
+
+   if (wordlen != 0) { 
+
+    ++wordnum; 
+
+    wordlen = 0; 
+
+ 
+
+   } 
+
+  } 
+
+  else if (ch == '\n') {  
+
+   outFile.put('\n'); 
+
+   wordlen = 0; 
+
+   wordnum = 0; 
+
+   charcounter = 0; 
+
+  } 
+
+  else { 
+
+   if (wordlen == 0 && wordnum > 0) {  
+
+    while (charcounter <= lenwords[wordnum - 1]) { 
+
+     outFile.put(' '); 
+
+     ++charcounter; 
+
+    } 
+
+    charcounter = 0; 
+
+   } 
+
+   outFile.put(ch); 
+
+   ++wordlen; 
+
+   ++charcounter; 
+
+  } 
+
+ } 
+
+ 
+
+ inFile.close(); 
+
+ outFile.close(); 
+
+ return 0; 
 
 }
 
-
-int main(int argc, char* argv[])
-{
-	const char* inputFileName = argv[1];
-	const char* outputFileName = argv[2];
-	
-
-	std::ifstream inFile2(inputFileName);
-	if (!inFile2) {
-		std::cerr << "Can not open file" << inputFileName << "\n";
-		std::system("pause");
-		return 1;
-	}
-
-	int state = 2;
-	int ch = 0;
-	int k[100] = {};
-	int x = 0;
-	int y = 0;
-	while ((ch = inFile2.get()) != EOF) {
-		switch (state) {
-		case 1:
-			if (isdelimiter(ch)) {
-				if (ch == '\n') {
-					if (k[y] <= x) {
-						k[y] = x;
-					}
-					x = 0;
-					y = 0;
-				}
-				else {
-					if (k[y] <= x) {
-						k[y] = x;
-					}
-					x = 0;
-					y += 1;
-				}
-				state = 2;
-			}
-			else {
-				x += 1;
-				break;
-			}
-
-		case 2:
-			if (!isdelimiter(ch)) {
-				x += 1;
-				state = 1;
-			}
-			break;
-		}
-	}
-	if (x != 0) {
-		if (x > k[y]) {
-			k[y] = x;
-		}
-	}
-
-	
-	inFile2.close();
-	std::ifstream inFile(inputFileName);
-	if (!inFile) {
-		std::cerr << "Can not open fileeeee" << inputFileName << "\n";
-		std::system("pause");
-		return 1;
-	}
-
-	std::ofstream outFile(outputFileName);
-
-	if (!outFile) {
-		std::cerr << "Can not open file" << outputFileName << "\n";
-		inFile.close();
-		std::system("pause");
-		return 2;
-	}
-
-	state = 2;
-	ch = 0;
-	int c = 0;
-	int z = 0;
-
-	while ((ch = inFile.get()) != EOF) {
-		switch (state) {
-		case 1:
-			if (isdelimiter(ch)) {
-				if (ch == '\n') {
-					for (int i = 0; i < k[z]-c; ++i) {
-						outFile << ' ';
-					}
-					if (k[z + 1] != 0) {
-						while (true) {
-							z += 1;
-							for (int i = 0; i <= k[z]; ++i) {
-								outFile << ' ';
-							}
-							if (k[z + 1] == 0) {
-								break;
-							}
-						}
-					}
-					outFile << "\n";
-					c = 0;
-					z = 0;
-				}
-				else {
-					for (int i = 0; i < k[z]+1 - c; ++i) {
-						outFile << " ";
-					}
-					c = 0;
-					z +=1;
-				}
-				state = 2;
-			}
-			else {
-				outFile.put(ch);
-				c += 1;
-				break;
-			}
-
-		case 2:
-			if (!isdelimiter(ch)) {
-				outFile.put(ch);
-				c += 1;
-				state = 1;
-			}
-			break;
-		}
-	}
-	for (int i = 0; i < k[z] - c; ++i) {
-		outFile << ' ';
-	}
-	if (k[z + 1] != 0) {
-		while (true) {
-			z += 1;
-			for (int i = 0; i <= k[z]; ++i) {
-				outFile << ' ';
-			}
-			if (k[z + 1] == 0) {
-				break;
-			}
-		}
-	}
-
-	return 0;
-}
