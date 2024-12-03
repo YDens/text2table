@@ -20,5 +20,5 @@ jobs:
     - name: Linter
       run: clang-tidy Source.cpp
     - name: Linter (alt)
-      run: amcp-pit/cpp-linter@v1
+      uses: amcp-pit/cpp-linter@v1
 
