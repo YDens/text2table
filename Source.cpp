@@ -174,7 +174,7 @@ int main(int argc, char* argv[]) {
 
    } 
 
-   outFile.put(ch); 
+   outFile.put(static_cast<char>(ch)); 
 
    ++wordlen; 
 
